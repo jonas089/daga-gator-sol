@@ -13,8 +13,11 @@ For now the tables are an in-memory DB (please forgive me).
 Additionally, this will start an axum server that serves routes such as `127.0.0.1:8080/ping`.
 
 ## API routes
+`/blocks`: Query for all Blocks that are in the (memory) DB
+![blocks](https://github.com/jonas089/solforge-interview-task/blob/master/resources/api-blocks.png)
 
-work in progress
+`/transactions`: Query for all Transactions that are in the (memory) DB
+![transactions](https://github.com/jonas089/solforge-interview-task/blob/master/resources/api-transactions.png)
 
 ## Data Types
 See `types.rs`. When fetching the Blocks they are fit into this struct:
