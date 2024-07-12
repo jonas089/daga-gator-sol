@@ -63,3 +63,6 @@ Due to the time constraints I decided to design a memory DB with an API that moc
 memory DB. This is definitely feasible but would have taken a substantial amount of time considering the scope of this exercise. Therefore I decided to go with a memory DB and focus on writing clean
 and reusable code that spawns both the API service and the gator-loop efficiently, sharing state between them and locking whenever a write on the DB occurs.
 
+# Another Repo that I would like to share (conveys my idea of design principles)
+Anonymous Github GPG voting with ZK [jonas089/cypher-poll](https://github.com/jonas089/cypher-poll)
+
