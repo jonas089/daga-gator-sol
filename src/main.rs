@@ -22,6 +22,10 @@ fn main() {
         "Gator".yellow(),
         "says Hello".blue()
     );
+    // obtain start-from target
+    
+    // todo: start data aggre-gator loop
+    // todo: start restful API service (axum)
 }
 
 // Devnotes - Plan of Attack
