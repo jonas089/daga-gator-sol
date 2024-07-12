@@ -15,6 +15,7 @@ use std::sync::{Arc, Mutex};
 use storage::MemoryDB;
 use tokio::sync::RwLock;
 use types::{Block, SolanaEpoch};
+use serde_json;
 
 async fn gator_loop(database: Arc<Mutex<MemoryDB>>) {
     let client: JsonRpcClient =
@@ -89,9 +90,8 @@ async fn main() {
     tokio::spawn(gator_loop(Arc::clone(&shared_state)));
 
     let app = Router::new()
-        .route("/ping", get({ move || ping() }))
-        //.route("/", post())
-        //.route("/", post())
+        .route("/ping", get( move || ping() ))
+        .route("/blocks", get( get_blocks ))
         .layer(DefaultBodyLimit::max(10000000))
         .layer(Extension(shared_state));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
@@ -109,7 +109,11 @@ async fn main() {
     */
 }
 
-// `&'static str` becomes a `200 OK` with `content-type: text/plain; charset=utf-8`
 async fn ping() -> &'static str {
     "pong"
 }
+
+async fn get_blocks(Extension(shared_state): Extension<Arc<Mutex<MemoryDB>>>) -> String{
+    serde_json::to_string(&shared_state.lock().unwrap().blocks).unwrap()
+}
+
