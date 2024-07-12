@@ -1,5 +1,5 @@
 # Data-gator, a Solana Block Scraper
-I am using a free `Helius` node with a rate limit of `10 requests per second`. This is a hard limitation that I cannot bypass without purchasing a plan (or running my own node)
+I am using a free `Helius` Node with a rate limit of `10 requests per second`. This is a hard limitation that I cannot bypass without purchasing a plan (or running my own node)
 
 To start aggregating data, run (assuming you have Rust installed):
 ```
@@ -7,7 +7,7 @@ cargo run
 ```
 ![teaser](https://github.com/jonas089/solforge-interview-task/blob/master/resources/teaser.png)
 
-Data-gator will immediately start fetching all Blocks for the current `epoch`, storing both `Blocks` and all the `Transactions` in those Blocks in seperate tables.
+Data-gator will immediately start fetching all `Blocks` for the current `epoch`, storing both `Blocks` and all the `Transactions` in those `Blocks` in separate tables.
 For now the tables are those of a memory DB (which implements insert and get similar to what one would see when migrating to SQL).
 
 Simultaneously, this will start an axum server that serves routes such as `127.0.0.1:8080/ping`.
@@ -53,3 +53,13 @@ pub struct Transaction {
     pub transaction: TransactionData,
 }
 ```
+
+# Design decisions
+When I began working on data-gator, I first studied the Solana RPC Api endpoints looking for how to fetch `Blocks` for a given `Epoch` and then extract `Transactions` from those `Blocks`.
+That was my main focus and my goal was to get the minimum requirements in place as quick as possible. Moving forward I queried those endpoints and use the RPC documentation to come up
+with Rust structs that fit the return values.
+
+Due to the time constraints I decided to design a memory DB with an API that mocks that of an actual SQL library. To migrate to SQL one would have to setup tables and queries and then replace the
+memory DB. This is definitely feasible but would have taken a substantial amount of time considering the scope of this exercise. Therefore I decided to go with a memory DB and focus on writing clean
+and reusable code that spawns both the API service and the gator-loop efficiently, sharing state between them and locking whenever a write on the DB occurs.
+
