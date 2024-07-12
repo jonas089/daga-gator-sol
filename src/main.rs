@@ -10,12 +10,12 @@ use axum::{
 use client::{JsonRpcClient, RPC_ENDPOINT};
 use colored::*;
 use indicatif::ProgressBar;
+use serde_json;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use storage::MemoryDB;
 use tokio::sync::RwLock;
 use types::{Block, SolanaEpoch};
-use serde_json;
 
 async fn gator_loop(database: Arc<Mutex<MemoryDB>>) {
     let client: JsonRpcClient =
@@ -90,8 +90,9 @@ async fn main() {
     tokio::spawn(gator_loop(Arc::clone(&shared_state)));
 
     let app = Router::new()
-        .route("/ping", get( move || ping() ))
-        .route("/blocks", get( get_blocks ))
+        .route("/ping", get(move || ping()))
+        .route("/blocks", get(get_blocks))
+        .route("/transactions", get(get_transactions))
         .layer(DefaultBodyLimit::max(10000000))
         .layer(Extension(shared_state));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
@@ -113,7 +114,10 @@ async fn ping() -> &'static str {
     "pong"
 }
 
-async fn get_blocks(Extension(shared_state): Extension<Arc<Mutex<MemoryDB>>>) -> String{
+async fn get_blocks(Extension(shared_state): Extension<Arc<Mutex<MemoryDB>>>) -> String {
     serde_json::to_string(&shared_state.lock().unwrap().blocks).unwrap()
 }
 
+async fn get_transactions(Extension(shared_state): Extension<Arc<Mutex<MemoryDB>>>) -> String {
+    serde_json::to_string(&shared_state.lock().unwrap().transactions).unwrap()
+}
