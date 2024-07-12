@@ -11,3 +11,27 @@ Data-gator will immediately start fetching all Blocks for the current `epoch`, s
 For now the tables are an in-memory DB (please forgive me).
 
 
+## Data Types
+See `types.rs`. When fetching the Blocks they are fit into this struct:
+
+```rust
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub struct Block {
+    #[serde(rename = "blockHeight")]
+    pub block_height: Value,
+    #[serde(rename = "blockTime")]
+    pub block_time: Option<Value>,
+    pub blockhash: String,
+    #[serde(rename = "parentSlot")]
+    pub parent_slot: Value,
+    #[serde(rename = "previousBlockHash")]
+    pub previous_block_hash: Option<String>,
+    pub transactions: Vec<Transaction>,
+}
+
+```
+
+using `serde-json`. Blocks that don't fit into this struct are considered malformed or odd and therefore dropped.
+This is what one can expect to encouter:
+![malformed](https://github.com/jonas089/solforge-interview-task/blob/master/resources/malformed.png)
+These errors indicate that a `Block` was encountered that doesn't fit into my `Block` struct.
