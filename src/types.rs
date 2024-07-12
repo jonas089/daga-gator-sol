@@ -1,10 +1,5 @@
 use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct Block {}
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct Transaction {}
+use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct SolanaEpoch {
@@ -19,4 +14,14 @@ pub struct SolanaEpoch {
     pub slots_in_epoch: u64,
     #[serde(rename = "transactionCount")]
     pub transaction_count: u64,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub struct Block {
+
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub struct Transaction {
+
 }

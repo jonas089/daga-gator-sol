@@ -1,8 +1,7 @@
-use crate::types::SolanaEpoch;
+use crate::types::{Block, SolanaEpoch};
 use anyhow::Result;
 use jsonrpsee_core::client::ClientT;
 use jsonrpsee_http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
-use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 pub const RPC_ENDPOINT: &str = "https://api.devnet.solana.com";
@@ -86,5 +85,14 @@ async fn test_get_block_metadata() {
             ],
         )
         .await;
-    println!("Block: {:?}", &response);
+    let block: Value = serde_json::from_value(response.unwrap()).unwrap();
+    // exclude 0 index since that is the metadata of the transactions blob
+    let transaction_signature: String = serde_json::from_value(block["transactions"].get(1).unwrap()["transaction"]["signatures"][0].clone()).unwrap();
+    println!("Transaction Signature: {:?}", &transaction_signature);
+    // 52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg
+}
+
+#[tokio::test]
+async fn test_get_transaction_from_signature(){
+    // todo
 }

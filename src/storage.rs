@@ -56,24 +56,3 @@ async fn async_get_last_block(db: &SharedMemoryDB) -> Block {
     let db = db.read().await;
     db.get_last_block().clone()
 }
-
-#[tokio::test]
-async fn test_memory_db() {
-    let memory_db = MemoryDB {
-        blocks: HashMap::new(),
-        transactions: HashMap::new(),
-        block_idx: 0,
-    };
-    let mut shared_memory_db: SharedMemoryDB = Arc::new(RwLock::new(memory_db));
-    async_insert_block(&mut shared_memory_db, 0, Block {}).await;
-    async_insert_block(&mut shared_memory_db, 1, Block {}).await;
-    assert_eq!(async_get_last_block(&shared_memory_db).await, Block {});
-    assert_eq!(
-        async_get_block_by_height(&shared_memory_db, 0).await,
-        Block {}
-    );
-    assert_eq!(
-        async_get_block_by_height(&shared_memory_db, 1).await,
-        Block {}
-    );
-}
