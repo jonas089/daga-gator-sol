@@ -44,6 +44,19 @@ impl JsonRpcClient {
             .await?;
         Ok(serde_json::from_value(response).unwrap())
     }
+
+    pub async fn get_transaction_by_signature(
+        &self,
+        transaction_signature: &str,
+    ) -> Result<Transaction> {
+        let response = self
+            .post(
+                "getTransaction",
+                vec![Value::from(transaction_signature), Value::from("json")],
+            )
+            .await?;
+        Ok(serde_json::from_value(response).unwrap())
+    }
 }
 
 #[tokio::test]
@@ -87,23 +100,24 @@ async fn test_get_block_metadata() {
         .await;
     let block: Value = serde_json::from_value(response.unwrap()).unwrap();
     // exclude 0 index since that is the metadata of the transactions blob
-    let transaction_signature: String = serde_json::from_value(block["transactions"].get(1).unwrap()["transaction"]["signatures"][0].clone()).unwrap();
+    let transaction_signature: String = serde_json::from_value(
+        block["transactions"].get(1).unwrap()["transaction"]["signatures"][0].clone(),
+    )
+    .unwrap();
     println!("Transaction Signature: {:?}", &transaction_signature);
     // 52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg
 }
 
 #[tokio::test]
-async fn test_get_transaction_from_signature(){
+async fn test_get_transaction_from_signature() {
     let client: JsonRpcClient =
         JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
-    let transaction_signature: &str = "52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg";
+    let transaction_signature: &str =
+        "52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg";
     let response = client
         .post(
             "getTransaction",
-            vec![
-                Value::from(transaction_signature),
-                Value::from("json")
-            ],
+            vec![Value::from(transaction_signature), Value::from("json")],
         )
         .await;
     let transaction: Transaction = serde_json::from_value(response.unwrap()).unwrap();
