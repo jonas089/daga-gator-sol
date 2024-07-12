@@ -27,7 +27,7 @@ pub struct Block {
     pub parent_slot: Value,
     #[serde(rename = "previousBlockHash")]
     pub previous_block_hash: Option<String>,
-    pub transactions: Vec<BlockTransaction>,
+    pub transactions: Vec<Transaction>,
 }
 
 impl Block {
@@ -41,14 +41,14 @@ impl Block {
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
-pub struct Transaction {
+pub struct RawTransaction {
     pub meta: TransactionMeta,
     pub slot: Value,
     pub transaction: TransactionData,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
-pub struct BlockTransaction {
+pub struct Transaction {
     pub meta: BlockMeta,
     pub transaction: TransactionData,
 }
@@ -99,8 +99,8 @@ pub struct Status {
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
 pub struct TransactionData {
-    message: Message,
-    signatures: Vec<String>,
+    pub message: Message,
+    pub signatures: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

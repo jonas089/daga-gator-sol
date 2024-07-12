@@ -4,7 +4,8 @@ use jsonrpsee_core::client::ClientT;
 use jsonrpsee_http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
 use serde_json::{json, Value};
 
-pub const RPC_ENDPOINT: &str = "https://api.devnet.solana.com";
+pub const RPC_ENDPOINT: &str =
+    "https://devnet.helius-rpc.com/?api-key=bd8c21cc-5006-4160-b627-bfadbf9c547c";
 
 #[derive(Debug)]
 pub struct JsonRpcClient {

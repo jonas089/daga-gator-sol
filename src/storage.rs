@@ -3,24 +3,24 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub struct MemoryDB {
-    pub blocks: HashMap<u32, Block>,
-    pub transactions: HashMap<String, Transaction>,
-    pub block_idx: u32,
+    pub blocks: HashMap<u64, Block>,
+    pub transactions: HashMap<String, (Transaction, u64)>,
+    pub block_idx: u64,
 }
 pub type SharedMemoryDB = Arc<RwLock<MemoryDB>>;
 
 impl MemoryDB {
-    pub fn insert_block(&mut self, height: u32, block: Block) {
+    pub fn insert_block(&mut self, height: u64, block: Block) {
         self.blocks.insert(height, block);
         self.block_idx = height
     }
-    pub fn insert_transaction(&mut self, tx_hash: String, tx: Transaction) {
-        self.transactions.insert(tx_hash, tx);
+    pub fn insert_transaction(&mut self, tx_hash: String, tx: Transaction, height: u64) {
+        self.transactions.insert(tx_hash, (tx, height));
     }
-    pub fn get_block_by_height(&self, height: u32) -> &Block {
+    pub fn get_block_by_height(&self, height: u64) -> &Block {
         self.blocks.get(&height).expect("Failed to get Block")
     }
-    pub fn get_transaction_by_hash(&self, tx_hash: &str) -> &Transaction {
+    pub fn get_transaction_by_hash(&self, tx_hash: &str) -> &(Transaction, u64) {
         self.transactions
             .get(tx_hash)
             .expect("Failed to get Transaction")
@@ -32,27 +32,36 @@ impl MemoryDB {
     }
 }
 
-async fn async_insert_block(db: &mut SharedMemoryDB, height: u32, block: Block) {
+pub async fn async_insert_block(db: &mut SharedMemoryDB, height: u64, block: Block) {
     let mut db = db.write().await;
     db.insert_block(height, block);
 }
 
-async fn async_insert_transaction(db: &mut SharedMemoryDB, tx_hash: String, tx: Transaction) {
+pub async fn async_insert_transaction(
+    db: &mut SharedMemoryDB,
+    tx_hash: String,
+    tx: Transaction,
+    height: u64,
+) {
     let mut db = db.write().await;
-    db.insert_transaction(tx_hash, tx);
+    db.insert_transaction(tx_hash, tx, height);
 }
 
-async fn async_get_block_by_height(db: &SharedMemoryDB, height: u32) -> Block {
+pub async fn async_get_block_by_height(db: &SharedMemoryDB, height: u64) -> Block {
     let db = db.read().await;
     db.get_block_by_height(height).clone()
 }
 
-async fn async_get_transaction_by_hash(db: &SharedMemoryDB, tx_hash: String) -> Transaction {
+pub async fn async_get_transaction_by_hash(
+    db: &SharedMemoryDB,
+    tx_hash: String,
+    height: u64,
+) -> (Transaction, u64) {
     let db = db.read().await;
     db.get_transaction_by_hash(&tx_hash).clone()
 }
 
-async fn async_get_last_block(db: &SharedMemoryDB) -> Block {
+pub async fn async_get_last_block(db: &SharedMemoryDB) -> Block {
     let db = db.read().await;
     db.get_last_block().clone()
 }

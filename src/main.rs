@@ -3,10 +3,13 @@ pub mod storage;
 pub mod types;
 use client::{JsonRpcClient, RPC_ENDPOINT};
 use colored::*;
-use std::collections::HashMap;
+use indicatif::ProgressBar;
+use std::thread::sleep;
+use std::{collections::HashMap, thread, time::Duration};
+use storage::{async_insert_block, async_insert_transaction};
 use storage::{MemoryDB, SharedMemoryDB};
 use tokio::sync::RwLock;
-use types::SolanaEpoch;
+use types::{Block, SolanaEpoch};
 
 #[tokio::main]
 async fn main() {
@@ -29,9 +32,9 @@ async fn main() {
         "{}{} {}!",
         "Data".green(),
         "Gator".yellow(),
-        "says Hello".blue()
+        "says Hello".blue().italic()
     );
-    let memory_db: SharedMemoryDB = SharedMemoryDB::new(RwLock::new(MemoryDB {
+    let mut shared_memory_db: SharedMemoryDB = SharedMemoryDB::new(RwLock::new(MemoryDB {
         blocks: HashMap::new(),
         transactions: HashMap::new(),
         block_idx: 0,
@@ -46,8 +49,44 @@ async fn main() {
         .get_current_era_blocks(current_epoch)
         .await
         .expect("[Error] Failed to get Blocks for ongoing Epoch");
-    for block in epoch_blocks {}
+    let progress_bar: ProgressBar = ProgressBar::new(epoch_blocks.len() as u64);
+    println!("Epoch Blocks: {:?}", &epoch_blocks.len());
+    for block_slot in epoch_blocks {
+        // No fault tolerance for now
+        let block: Option<Block> = match client.get_block_by_id(block_slot).await {
+            Ok(block) => Some(block),
+            Err(err) => {
+                println!("Malformed or non-standard Block {}", &err.to_string().red());
+                None
+            }
+        };
+        match block {
+            Some(block) => {
+                let block_height = block.block_height.as_u64().unwrap();
+                for transaction in block.transactions.clone() {
+                    async_insert_transaction(
+                        &mut shared_memory_db,
+                        transaction.transaction.signatures[0].clone(),
+                        transaction,
+                        block_height,
+                    )
+                    .await;
+                }
+                async_insert_block(&mut shared_memory_db, block_height, block).await;
+            }
+            None => {}
+        }
+        progress_bar.inc(1);
+        //sleep(Duration::from_millis(10));
+    }
+    progress_bar.finish_with_message("Done fetching Blocks for Epoch!");
+    /*
+        Since I am implementing this with a MemoryDB, there is no fallback options for cases where
+        the service crashes. I wrote the code with SQL databases in mind though, therefore it is quite
+        easy to setup a schema and replace MemoryDB. This is a common practice in Prototyping and POC architecture that
+        I am personally a big fan of.
 
-    // todo: start aggregating data and store it in the db
-    // todo: launch the api as a child process
+        If I had 1 week + to work on this project (and were paid for it), then I would consider setting up a Database schema and move away from
+        in-memory storage. I think that for the scope of this project this is a fair assumption.
+    */
 }
