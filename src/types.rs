@@ -7,7 +7,7 @@ pub struct Block {}
 pub struct Transaction {}
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct SolanaEpoch{
+pub struct SolanaEpoch {
     #[serde(rename = "absoluteSlot")]
     pub absolute_slot: u64,
     #[serde(rename = "blockHeight")]

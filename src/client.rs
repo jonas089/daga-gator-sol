@@ -1,17 +1,18 @@
-use serde_json::Value;
-use jsonrpsee_http_client::{HttpClientBuilder, HttpClient, HeaderValue, HeaderMap};
-use jsonrpsee_core::client::ClientT;
 use crate::types::SolanaEpoch;
 use anyhow::Result;
+use jsonrpsee_core::client::ClientT;
+use jsonrpsee_http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
 pub const RPC_ENDPOINT: &str = "https://api.devnet.solana.com";
 
 #[derive(Debug)]
-pub struct JsonRpcClient{
-    client: HttpClient
+pub struct JsonRpcClient {
+    client: HttpClient,
 }
 
-impl JsonRpcClient{
+impl JsonRpcClient {
     pub fn new(rpc_endpoint: &str) -> Result<JsonRpcClient> {
         let mut headers = HeaderMap::new();
         headers.insert("Content-Type", HeaderValue::from_static("application/json"));
@@ -27,27 +28,63 @@ impl JsonRpcClient{
         Ok(self.client.request(method, params).await?)
     }
 
-    pub async fn get_current_epoch(&self) -> Result<SolanaEpoch>{
+    pub async fn get_current_epoch(&self) -> Result<SolanaEpoch> {
         let response = self.post("getEpochInfo", vec![]).await?;
         Ok(serde_json::from_value(response)?)
     }
 
-    pub async fn get_current_era_blocks(&self, epoch: SolanaEpoch) -> Result<Vec<u32>>{
-        let response = self.post("getBlocks", vec![Value::from(epoch.absolute_slot - epoch.slot_index), Value::from(epoch.absolute_slot - epoch.slot_index + epoch.slots_in_epoch)]).await?;
+    pub async fn get_current_era_blocks(&self, epoch: SolanaEpoch) -> Result<Vec<u32>> {
+        let response = self
+            .post(
+                "getBlocks",
+                vec![
+                    Value::from(epoch.absolute_slot - epoch.slot_index),
+                    Value::from(epoch.absolute_slot - epoch.slot_index + epoch.slots_in_epoch),
+                ],
+            )
+            .await?;
         Ok(serde_json::from_value(response).unwrap())
     }
 }
 
 #[tokio::test]
-async fn test_get_epoch(){
-    let client: JsonRpcClient = JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
+async fn test_get_epoch() {
+    let client: JsonRpcClient =
+        JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
     println!("Epoch: {:?}", client.get_current_epoch().await);
 }
 
 #[tokio::test]
-async fn test_get_blocks(){
-    let client: JsonRpcClient = JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
+async fn test_get_blocks() {
+    let client: JsonRpcClient =
+        JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
     let epoch: SolanaEpoch = client.get_current_epoch().await.unwrap();
     let blocks = client.get_current_era_blocks(epoch).await;
     println!("Blocks: {:?}", &blocks);
+}
+
+#[tokio::test]
+async fn test_get_block_metadata() {
+    let client: JsonRpcClient =
+        JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
+    let epoch: SolanaEpoch = client.get_current_epoch().await.unwrap();
+    let finalized_block_id: u32 = client
+        .get_current_era_blocks(epoch)
+        .await
+        .expect("Failed to get Blocks for current Epoch")[0];
+    let response = client
+        .post(
+            "getBlock",
+            vec![
+                Value::from(finalized_block_id),
+                Value::from(json!(      {
+                  "encoding": "json",
+                  "maxSupportedTransactionVersion":0,
+                  "transactionDetails":"full",
+                  "rewards":false
+                })),
+            ],
+        )
+        .await;
+    println!("Block: {:?}", &response);
 }
