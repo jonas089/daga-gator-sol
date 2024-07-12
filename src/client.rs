@@ -98,14 +98,8 @@ async fn test_get_block_metadata() {
             ],
         )
         .await;
-    let block: Value = serde_json::from_value(response.unwrap()).unwrap();
-    // exclude 0 index since that is the metadata of the transactions blob
-    let transaction_signature: String = serde_json::from_value(
-        block["transactions"].get(1).unwrap()["transaction"]["signatures"][0].clone(),
-    )
-    .unwrap();
-    println!("Transaction Signature: {:?}", &transaction_signature);
-    // 52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg
+    println!("Response: {:?}", &response);
+    let block: Block = serde_json::from_value(response.unwrap()).unwrap();
 }
 
 #[tokio::test]
