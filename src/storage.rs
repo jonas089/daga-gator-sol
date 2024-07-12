@@ -55,7 +55,6 @@ pub async fn async_get_block_by_height(db: &SharedMemoryDB, height: u64) -> Bloc
 pub async fn async_get_transaction_by_hash(
     db: &SharedMemoryDB,
     tx_hash: String,
-    height: u64,
 ) -> (Transaction, u64) {
     let db = db.read().await;
     db.get_transaction_by_hash(&tx_hash).clone()

@@ -31,6 +31,15 @@ pub struct Block {
 
 ```
 
+Similarily `Transactions` are fit into a `Transaction` struct:
+```rust
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub struct Transaction {
+    pub meta: BlockMeta,
+    pub transaction: TransactionData,
+}
+```
+
 using `serde-json`. Blocks that don't fit into this struct are considered malformed or odd and therefore dropped.
 This is what one can expect to encouter:
 ![malformed](https://github.com/jonas089/solforge-interview-task/blob/master/resources/malformed.png)
