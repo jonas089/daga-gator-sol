@@ -30,6 +30,16 @@ pub struct Block {
     pub transactions: Vec<BlockTransaction>,
 }
 
+impl Block {
+    pub fn get_transaction_signatures(&self) -> Vec<String> {
+        let mut signatures: Vec<String> = Vec::new();
+        for transaction in self.transactions.clone() {
+            signatures.push(transaction.transaction.signatures[0].clone());
+        }
+        signatures
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
 pub struct Transaction {
     pub meta: TransactionMeta,
