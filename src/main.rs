@@ -105,7 +105,7 @@ async fn main() {
         easy to setup a schema and replace MemoryDB. This is a common practice in Prototyping and POC architecture that
         I am personally a big fan of.
 
-        If I had 1 week + to work on this project (and were paid for it), then I would consider setting up a Database schema and move away from
+        If I had 1 week + to work on this project, then I would consider setting up a Database schema and move away from
         in-memory storage. I think that for the scope of this project this is a fair assumption.
     */
 }
