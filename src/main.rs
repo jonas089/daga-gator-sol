@@ -1,5 +1,6 @@
 pub mod storage;
 pub mod types;
+pub mod client;
 use colored::*;
 
 fn main() {
