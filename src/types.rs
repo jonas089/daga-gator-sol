@@ -19,22 +19,28 @@ pub struct SolanaEpoch {
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
 pub struct Block {
     #[serde(rename = "blockHeight")]
-    block_height: Value,
+    pub block_height: Value,
     #[serde(rename = "blockTime")]
-    block_time: Option<Value>,
-    blockhash: String,
+    pub block_time: Option<Value>,
+    pub blockhash: String,
     #[serde(rename = "parentSlot")]
-    parent_slot: Value,
+    pub parent_slot: Value,
     #[serde(rename = "previousBlockHash")]
-    previous_block_hash: Option<String>,
-    transactions: Vec<BlockTransaction>,
+    pub previous_block_hash: Option<String>,
+    pub transactions: Vec<BlockTransaction>,
 }
 
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub struct Transaction {
+    pub meta: TransactionMeta,
+    pub slot: Value,
+    pub transaction: TransactionData,
+}
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
-pub struct BlockTransaction{
+pub struct BlockTransaction {
     pub meta: BlockMeta,
-    pub transaction: TransactionData
+    pub transaction: TransactionData,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
@@ -57,16 +63,8 @@ pub struct BlockMeta {
     pub status: Status,
 }
 
-
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
-pub struct Transaction {
-    pub meta: Meta,
-    pub slot: Value,
-    pub transaction: TransactionData,
-}
-
-#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
-pub struct Meta {
+pub struct TransactionMeta {
     pub err: Option<Value>,
     pub fee: Value,
     #[serde(rename = "innerInstructions")]

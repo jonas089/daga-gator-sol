@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub struct MemoryDB {
-    blocks: HashMap<u32, Block>,
-    transactions: HashMap<String, Transaction>,
-    block_idx: u32,
+    pub blocks: HashMap<u32, Block>,
+    pub transactions: HashMap<String, Transaction>,
+    pub block_idx: u32,
 }
 pub type SharedMemoryDB = Arc<RwLock<MemoryDB>>;
 
