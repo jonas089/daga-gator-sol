@@ -1,7 +1,7 @@
 use serde_json::{from_value, json, Error, Value};
 use jsonrpsee_http_client::{HttpClientBuilder, HttpClient, HeaderValue, HeaderMap};
 use jsonrpsee_core::client::ClientT;
-use crate::types::{self};
+use crate::types::{self, SolanaEpoch};
 use anyhow::Result;
 
 #[derive(Debug)]
@@ -24,6 +24,11 @@ impl JsonRpcClient{
     pub async fn post(&self, method: &str, params: Vec<Value>) -> Result<Value> {
         Ok(self.client.request(method, params).await?)
     }
+
+    pub async fn get_current_epoch(&self) -> Result<SolanaEpoch>{
+        let response = self.post("getEpochInfo", vec![]).await?;
+        Ok(serde_json::from_value(response)?)
+    }
 }
 
 #[tokio::test]
@@ -31,7 +36,5 @@ async fn test_epoch_response(){
     use types::SolanaEpoch;
     let rpc_endpoint: &str = "https://api.devnet.solana.com";
     let client: JsonRpcClient = JsonRpcClient::new(rpc_endpoint).expect("Failed to construct Client");
-    let response = client.post("getEpochInfo", vec![]).await.unwrap();
-    let epoch: SolanaEpoch = serde_json::from_value(response).unwrap();
-    println!("Response: {:?}", &epoch);
+    println!("Epoch: {:?}", client.get_current_epoch().await);
 }
