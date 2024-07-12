@@ -1,4 +1,4 @@
-use crate::types::{Block, SolanaEpoch};
+use crate::types::{Block, SolanaEpoch, Transaction};
 use anyhow::Result;
 use jsonrpsee_core::client::ClientT;
 use jsonrpsee_http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
@@ -94,5 +94,18 @@ async fn test_get_block_metadata() {
 
 #[tokio::test]
 async fn test_get_transaction_from_signature(){
-    // todo
+    let client: JsonRpcClient =
+        JsonRpcClient::new(RPC_ENDPOINT).expect("Failed to construct Client");
+    let transaction_signature: &str = "52C9SsvGcMy6j6MMFtD2YNFkHn99HpqgnVPVNZQDTDWv3p9gAJU1gkfQwNycPEDy6KXP7k6UveLnqivTBo3Tbnqg";
+    let response = client
+        .post(
+            "getTransaction",
+            vec![
+                Value::from(transaction_signature),
+                Value::from("json")
+            ],
+        )
+        .await;
+    let transaction: Transaction = serde_json::from_value(response.unwrap()).unwrap();
+    println!("Transaction: {:?}", &transaction)
 }
