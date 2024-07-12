@@ -10,6 +10,11 @@ cargo run
 Data-gator will immediately start fetching all Blocks for the current `epoch`, storing both `Blocks` and all the `Transactions` in those Blocks in seperate tables.
 For now the tables are an in-memory DB (please forgive me).
 
+Additionally, this will start an axum server that serves routes such as `127.0.0.1:8080/ping`.
+
+## API routes
+
+work in progress
 
 ## Data Types
 See `types.rs`. When fetching the Blocks they are fit into this struct:
