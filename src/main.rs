@@ -1,20 +1,13 @@
 pub mod client;
 pub mod storage;
 pub mod types;
-use axum::{
-    extract::DefaultBodyLimit,
-    response::IntoResponse,
-    routing::{get, post},
-    Extension, Json, Router,
-};
+use axum::{extract::DefaultBodyLimit, routing::get, Extension, Router};
 use client::{JsonRpcClient, RPC_ENDPOINT};
 use colored::*;
 use indicatif::ProgressBar;
-use serde_json;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use storage::MemoryDB;
-use tokio::sync::RwLock;
 use types::{Block, SolanaEpoch};
 
 async fn gator_loop(database: Arc<Mutex<MemoryDB>>) {
@@ -39,20 +32,17 @@ async fn gator_loop(database: Arc<Mutex<MemoryDB>>) {
                 None
             }
         };
-        match block {
-            Some(block) => {
-                let block_height = block.block_height.as_u64().unwrap();
-                for transaction in block.transactions.clone() {
-                    database.lock().unwrap().insert_transaction(
-                        transaction.transaction.signatures[0].clone(),
-                        transaction,
-                        block_height,
-                    );
-                }
-                database.lock().unwrap().insert_block(block_height, block);
+        if let Some(block) = block {
+            let block_height = block.block_height.as_u64().unwrap();
+            for transaction in block.transactions.clone() {
+                database.lock().unwrap().insert_transaction(
+                    transaction.transaction.signatures[0].clone(),
+                    transaction,
+                    block_height,
+                );
             }
-            None => {}
-        }
+            database.lock().unwrap().insert_block(block_height, block);
+        };
         progress_bar.inc(1);
         //sleep(Duration::from_millis(10));
     }
@@ -81,7 +71,7 @@ async fn main() {
         "Gator".yellow(),
         "says Hello".blue().italic()
     );
-    let mut shared_memory_db: MemoryDB = MemoryDB {
+    let shared_memory_db: MemoryDB = MemoryDB {
         blocks: HashMap::new(),
         transactions: HashMap::new(),
         block_idx: 0,
@@ -90,7 +80,7 @@ async fn main() {
     tokio::spawn(gator_loop(Arc::clone(&shared_state)));
 
     let app = Router::new()
-        .route("/ping", get(move || ping()))
+        .route("/ping", get(ping))
         .route("/blocks", get(get_blocks))
         .route("/transactions", get(get_transactions))
         .layer(DefaultBodyLimit::max(10000000))

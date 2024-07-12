@@ -52,12 +52,12 @@ impl JsonRpcClient {
                 "getBlock",
                 vec![
                     Value::from(finalized_block_id),
-                    Value::from(json!(      {
+                    json!({
                       "encoding": "json",
                       "maxSupportedTransactionVersion":0,
                       "transactionDetails":"full",
                       "rewards":false
-                    })),
+                    }),
                 ],
             )
             .await?;

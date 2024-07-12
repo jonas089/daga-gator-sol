@@ -1,7 +1,5 @@
 use crate::types::{Block, Transaction};
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 pub struct MemoryDB {
     pub blocks: HashMap<u64, Block>,
     pub transactions: HashMap<String, (Transaction, u64)>,
