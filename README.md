@@ -43,7 +43,7 @@ This is what one can expect to encouter:
 ![malformed](https://github.com/jonas089/solforge-interview-task/blob/master/resources/malformed.png)
 These errors indicate that a `Block` was encountered that doesn't fit into my `Block` struct.
 It might be that these `Blocks` are actually malformed or that they adhere to a different format for reasons such as 
-`Superblocks`. Either way for the scope of this project I will only support `Blocks` that are aligned with the latest Solana RPC documentation.
+`Superblocks`. Either way for the scope of this project I will only support `Blocks` that are aligned with the latest [Solana RPC documentation](https://solana.com/docs/rpc/http/getblock).
 
 Similarily `Transactions` are fit into a `Transaction` struct:
 ```rust
