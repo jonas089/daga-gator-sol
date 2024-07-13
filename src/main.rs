@@ -35,16 +35,19 @@ async fn gator_loop(database: Arc<Mutex<MemoryDB>>) {
         if let Some(block) = block {
             let block_height = block.block_height.as_u64().unwrap();
             for transaction in block.transactions.clone() {
+                let raw_transaction = client
+                    .get_transaction_by_signature(&transaction.transaction.signatures[0])
+                    .await
+                    .unwrap();
                 database.lock().unwrap().insert_transaction(
                     transaction.transaction.signatures[0].clone(),
-                    transaction,
+                    raw_transaction,
                     block_height,
                 );
             }
             database.lock().unwrap().insert_block(block_height, block);
         };
         progress_bar.inc(1);
-        //sleep(Duration::from_millis(10));
     }
     progress_bar.finish_with_message("Done fetching Blocks for Epoch!");
 }

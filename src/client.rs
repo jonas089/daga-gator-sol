@@ -1,4 +1,4 @@
-use crate::types::{Block, SolanaEpoch, Transaction};
+use crate::types::{Block, RawTransaction, SolanaEpoch};
 use anyhow::{Ok, Result};
 use jsonrpsee_core::client::ClientT;
 use jsonrpsee_http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
@@ -52,12 +52,12 @@ impl JsonRpcClient {
                 "getBlock",
                 vec![
                     Value::from(finalized_block_id),
-                    json!({
+                    Value::from(json!({
                       "encoding": "json",
                       "maxSupportedTransactionVersion":0,
                       "transactionDetails":"full",
                       "rewards":false
-                    }),
+                    })),
                 ],
             )
             .await?;
@@ -67,11 +67,19 @@ impl JsonRpcClient {
     pub async fn get_transaction_by_signature(
         &self,
         transaction_signature: &str,
-    ) -> Result<Transaction> {
+    ) -> Result<RawTransaction> {
         let response = self
             .post(
                 "getTransaction",
-                vec![Value::from(transaction_signature), Value::from("json")],
+                vec![
+                    Value::from(transaction_signature),
+                    json!({
+                      "encoding": "json",
+                      "maxSupportedTransactionVersion":0,
+                      "transactionDetails":"full",
+                      "rewards":false
+                    }),
+                ],
             )
             .await?;
         Ok(serde_json::from_value(response)?)
@@ -109,16 +117,17 @@ async fn test_get_block_metadata() {
             "getBlock",
             vec![
                 Value::from(finalized_block_id),
-                Value::from(json!(      {
+                json!(      {
                   "encoding": "json",
                   "maxSupportedTransactionVersion":0,
                   "transactionDetails":"full",
                   "rewards":false
-                })),
+                }),
             ],
         )
         .await;
-    let _block: Block = serde_json::from_value(response.unwrap()).unwrap();
+    let block: Block = serde_json::from_value(response.unwrap()).unwrap();
+    println!("Block: {:?}", &block);
 }
 
 #[tokio::test]
@@ -133,5 +142,6 @@ async fn test_get_transaction_from_signature() {
             vec![Value::from(transaction_signature), Value::from("json")],
         )
         .await;
-    let _transaction: Transaction = serde_json::from_value(response.unwrap()).unwrap();
+    let transaction: RawTransaction = serde_json::from_value(response.unwrap()).unwrap();
+    println!("Transaction: {:?}", &transaction);
 }
