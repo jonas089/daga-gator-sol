@@ -56,12 +56,15 @@ pub struct Transaction {
 
 # Design decisions
 When I began working on data-gator, I first studied the Solana RPC Api endpoints looking for how to fetch `Blocks` for a given `Epoch` and then extract `Transactions` from those `Blocks`.
-That was my main focus and my goal was to get the minimum requirements in place as quick as possible. Moving forward I queried those endpoints and use the RPC documentation to come up
+That was my main focus and my goal was to get the minimum requirements in place as quick as possible. Moving forward I queried those endpoints and used the RPC documentation to come up
 with Rust structs that fit the return values.
 
 Due to the time constraints I decided to design a memory DB with an API that mocks that of an actual SQL library. To migrate to SQL one would have to setup tables and queries and then replace the
 memory DB. This is definitely feasible but would have taken a substantial amount of time considering the scope of this exercise. Therefore I decided to go with a memory DB and focus on writing clean
 and reusable code that spawns both the API service and the gator-loop efficiently, sharing state between them and locking whenever a write on the DB occurs.
+
+# Changes on July 13 (post submission)
+Noticed that I stored the Transaction data found in Blocks instead of `RawTransaction`s. The consequence is that the pre- and post- Balances are not returned by `127.0.0.1:8080/transactions`. Changed this to store raw Transactions and serve the relevant data. Due to additional queries and rate-limits this comes at a performance cost. 
 
 # Another Repo that I would like to share (conveys my idea of design principles)
 Anonymous Github GPG voting with ZK [jonas089/cypher-poll](https://github.com/jonas089/cypher-poll)
