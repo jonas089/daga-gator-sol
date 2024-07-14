@@ -1,5 +1,5 @@
 # Data-gator, a Solana Block Scraper
-I am using a free `Helius` Node with a rate limit of `10 requests per second`. This is a hard limitation that I cannot bypass without purchasing a plan (or running my own node)
+I am using a free `Helius` Node with a rate limit of `2 requests per second`. This is a hard limitation that I cannot bypass without purchasing a plan (or running my own node)
 
 To start aggregating data, run (assuming you have Rust installed):
 ```
