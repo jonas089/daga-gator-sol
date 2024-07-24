@@ -65,7 +65,3 @@ and reusable code that spawns both the API service and the gator-loop efficientl
 
 # Changes on July 13 (post submission)
 Noticed that I stored the Transaction data found in Blocks instead of `RawTransaction`s. The consequence is that the pre- and post- Balances are not returned by `127.0.0.1:8080/transactions`. Changed this to store raw Transactions and serve the relevant data. Due to additional queries and rate-limits this comes at a performance cost. 
-
-# Another Repo that I would like to share (conveys my idea of design principles)
-Anonymous Github GPG voting with ZK [jonas089/cypher-poll](https://github.com/jonas089/cypher-poll)
-
